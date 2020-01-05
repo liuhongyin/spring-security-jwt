@@ -5,6 +5,7 @@ import com.liuhongyin.springsecurity.dto.RegisterDTO;
 import com.liuhongyin.springsecurity.mapper.UserMapper;
 import com.liuhongyin.springsecurity.model.User;
 import com.liuhongyin.springsecurity.service.IUserService;
+import com.liuhongyin.springsecurity.util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -21,7 +22,8 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements IUserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private UserMapper userMapper;
 
@@ -43,7 +45,7 @@ public class UserServiceImpl implements IUserService {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginDto.username, loginDto.password);
         Authentication authenticate = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authenticate);
-        return null;
+        return jwtTokenUtil.generateToken(authenticate,loginDto.rememberMe);
     }
 
     @Override
