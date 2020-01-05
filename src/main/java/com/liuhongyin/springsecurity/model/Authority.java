@@ -2,7 +2,6 @@ package com.liuhongyin.springsecurity.model;
 
 import lombok.Data;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -10,9 +9,7 @@ import java.util.Set;
  * @since 1/5/20
  */
 @Data
-public class User {
+public class Authority {
     public Integer id;
-    public String username;
-    public String password;
-    public Set<Authority> authorities;
+    public String name;
 }

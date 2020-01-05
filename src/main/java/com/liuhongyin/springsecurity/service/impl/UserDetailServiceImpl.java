@@ -1,6 +1,10 @@
 package com.liuhongyin.springsecurity.service.impl;
 
+import com.liuhongyin.springsecurity.model.User;
+import com.liuhongyin.springsecurity.model.UserDetail;
+import com.liuhongyin.springsecurity.service.IUserService;
 import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,6 +17,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserDetailServiceImpl implements UserDetailsService {
 
+    @Autowired
+    private IUserService userService;
+
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
 
@@ -23,9 +30,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
         }
         // TODO 如果是手机号登录 user = findUserByPhoneNumber()
 
-        // TODO user = findByUsername()
-
-        // TODO return new UserDetail(user);
-        return null;
+        User user = userService.findByUsername(login);
+        return new UserDetail(user);
     }
 }

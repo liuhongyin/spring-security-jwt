@@ -3,7 +3,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://lcoalhost:3306/auth
+    url: jdbc:mysql://localhost:3306/auth?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
     username: root
     password: admin
 
@@ -18,4 +18,9 @@ jwt:
 
 logging:
   level:
-    org.springframework.security: debug
+    org.springframework.security: DEBUG
+    com.liuhongyin.springsecurity.mapper: DEBUG
+
+mybatis:
+  mapper-locations:
+    - classpath:mapper/*.xml
