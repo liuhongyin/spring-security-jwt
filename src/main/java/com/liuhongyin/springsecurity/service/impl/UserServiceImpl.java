@@ -45,6 +45,7 @@ public class UserServiceImpl implements IUserService {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginDto.username, loginDto.password);
         Authentication authenticate = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authenticate);
+//        return null;
         return jwtTokenUtil.generateToken(authenticate,loginDto.rememberMe);
     }
 

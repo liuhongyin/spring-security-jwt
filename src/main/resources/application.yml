@@ -9,6 +9,7 @@ spring:
 
 jwt:
   header: Authorization
+  header-prefix: Bearer //此处有空格
   # This token must be encoded using Base64 with mininum 88 Bits (you can type `echo 'secret-key'|base64` on your command line)
   base64-secret: ZGVtby1zcHJpbmctc2VjdXJpdHktc2VjcmV0LWtleQo=
   # token is valid 24 hours
@@ -18,7 +19,7 @@ jwt:
 
 logging:
   level:
-    org.springframework.security: DEBUG
+    org.springframework.security: trace
     com.liuhongyin.springsecurity.mapper: DEBUG
 
 mybatis:

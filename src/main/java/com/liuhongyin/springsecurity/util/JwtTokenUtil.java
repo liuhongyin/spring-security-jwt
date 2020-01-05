@@ -1,15 +1,21 @@
 package com.liuhongyin.springsecurity.util;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.sun.org.apache.xerces.internal.xs.StringList;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +25,7 @@ import java.util.stream.Collectors;
  * @since 1/5/20
  */
 @Component
+@Slf4j
 public class JwtTokenUtil {
 
 
@@ -45,14 +52,15 @@ public class JwtTokenUtil {
                 .collect(Collectors.toList());
         ;
         long now = (new Date()).getTime();
+        byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
+        SecretKey secretKey = Keys.hmacShaKeyFor(keyBytes);
         Date validity;
         if (rememberMe) {
             validity = new Date(now + tokenValidityInSeconds);
         } else {
             validity = new Date(now + tokenValidityInSecondsForRememberMe);
         }
-        byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
-        SecretKey secretKey = Keys.hmacShaKeyFor(keyBytes);
+
 
         return Jwts.builder()
                 .setSubject(authentication.getName())
@@ -60,6 +68,44 @@ public class JwtTokenUtil {
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .setExpiration(validity)
                 .compact();
+    }
+
+    public Authentication getAuthentication(String token) {
+        byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
+        SecretKey secretKey = Keys.hmacShaKeyFor(keyBytes);
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody();
+
+        Collection<? extends GrantedAuthority> authorities =
+                ((List<String>)claims.get(AUTHORITIES_KEY)).stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
+
+        User principal = new User(claims.getSubject(), "", authorities);
+
+        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+    }
+
+    public boolean validateToken(String authToken) {
+        byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
+        SecretKey secretKey = Keys.hmacShaKeyFor(keyBytes);
+        try {
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(authToken);
+            return true;
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info("Invalid JWT signature.");
+            log.trace("Invalid JWT signature trace: {}", e);
+        } catch (ExpiredJwtException e) {
+            log.info("Expired JWT token.");
+            log.trace("Expired JWT token trace: {}", e);
+        } catch (UnsupportedJwtException e) {
+            log.info("Unsupported JWT token.");
+            log.trace("Unsupported JWT token trace: {}", e);
+        } catch (IllegalArgumentException e) {
+            log.info("JWT token compact of handler are invalid.");
+            log.trace("JWT token compact of handler are invalid trace: {}", e);
+        }
+        return false;
     }
 
 }
