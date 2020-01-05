@@ -7,8 +7,6 @@ spring:
     username: root
     password: admin
 
-
-
 jwt:
   header: Authorization
   # This token must be encoded using Base64 with mininum 88 Bits (you can type `echo 'secret-key'|base64` on your command line)
@@ -17,3 +15,7 @@ jwt:
   token-validity-in-seconds: 86400
   # valid 30 hours
   token-validity-in-seconds-for-remember-me: 108000
+
+logging:
+  level:
+    org.springframework.security: debug
